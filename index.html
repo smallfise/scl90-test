@@ -1,1 +1,28 @@
-<!-- Placeholder for SCL-90 HTML template -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>SCL-90 心理测评</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>SCL-90 心理测评</h1>
+    <p>请根据最近一周的感受，选择符合的选项（1=完全没有，5=非常严重）</p>
+
+    <form id="scl90-form">
+      <div id="questions"></div>
+      <button type="submit">提交测试</button>
+    </form>
+
+    <div id="result" class="hidden">
+      <h2>测试结果</h2>
+      <p id="score"></p>
+      <p id="advice"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
