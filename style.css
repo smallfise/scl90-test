@@ -29,7 +29,7 @@ body {
 
 /* 顶部标题 */
 header {
-  background: #4a6fa5;
+  background: #bbe167;
   color: white;
   padding: 20px;
   text-align: center;
@@ -72,8 +72,8 @@ h1 {
 }
 
 .instruction {
-  background: #e7f4ff;
-  border-left: 4px solid #4a6fa5;
+  background: #f0f9e5;
+  border-left: 4px solid #bbe167;
   padding: 15px;
   margin: 20px 0;
   border-radius: 8px;
@@ -81,7 +81,7 @@ h1 {
 
 .instruction h3 {
   margin-bottom: 10px;
-  color: #4a6fa5;
+  color: #6f902f;
 }
 
 .instruction ul {
@@ -100,7 +100,7 @@ h1 {
 }
 
 .question-number {
-  color: #4a6fa5;
+  color: #6f902f;
   font-size: 16px;
   margin-bottom: 10px;
 }
@@ -131,20 +131,20 @@ h1 {
 }
 
 .option-label:hover {
-  border-color: #6b8cbb;
+  border-color: #a4ca53;
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .option-label.selected {
-  border-color: #4a6fa5;
-  background-color: #f0f5ff;
+  border-color: #bbe167;
+  background-color: #f6fbe5;
 }
 
 .option-value {
   font-size: 18px;
   font-weight: 600;
-  color: #4a6fa5;
+  color: #6f902f;
   margin-right: 15px;
   min-width: 40px;
 }
@@ -164,7 +164,7 @@ h1 {
 
 .progress-bar {
   height: 100%;
-  background: #4a6fa5;
+  background: #bbe167;
   width: 0%;
   transition: width 0.5s ease;
   border-radius: 5px;
@@ -188,7 +188,7 @@ h1 {
 .btn {
   display: inline-block;
   padding: 14px 28px;
-  background: #4a6fa5;
+  background: #bbe167;
   color: white;
   border: none;
   border-radius: 50px;
@@ -199,13 +199,13 @@ h1 {
   text-align: center;
   width: 100%;
   max-width: 280px;
-  box-shadow: 0 4px 10px rgba(74, 111, 165, 0.25);
+  box-shadow: 0 4px 10px rgba(187, 225, 103, 0.4);
 }
 
 .btn:hover {
-  background: #6b8cbb;
+  background: #a4ca53;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(74, 111, 165, 0.3);
+  box-shadow: 0 6px 15px rgba(164, 202, 83, 0.4);
 }
 
 .btn:disabled {
@@ -235,7 +235,7 @@ h1 {
 
 .result-summary .score {
   font-weight: 600;
-  color: #4a6fa5;
+  color: #6f902f;
 }
 
 .result-container {
@@ -264,7 +264,7 @@ h1 {
 
 .factor-score {
   font-weight: 700;
-  color: #4a6fa5;
+  color: #6f902f;
 }
 
 .score-bar {
@@ -277,7 +277,7 @@ h1 {
 
 .score-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6b8cbb, #4a6fa5);
+  background: linear-gradient(90deg, #d6ef9f, #bbe167);
   border-radius: 10px;
   width: 0%;
   transition: width 1s ease-in-out;
@@ -292,7 +292,7 @@ h1 {
 
 .interpretation h3 {
   margin-bottom: 15px;
-  color: #4a6fa5;
+  color: #6f902f;
 }
 
 .interpretation ul {
@@ -308,9 +308,9 @@ h1 {
 .advice-section {
   margin-top: 20px;
   padding: 20px;
-  background: #e7f4ff;
+  background: #f0f9e5;
   border-radius: 12px;
-  border-left: 4px solid #4a6fa5;
+  border-left: 4px solid #bbe167;
 }
 
 /* 页脚 */
