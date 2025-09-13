@@ -1,8 +1,6 @@
 {
   "name": "scl90-test",
   "private": true,
-  "version": "1.0.0",
-  "description": "SCL-90 self-report test with one-time token validation (Vercel + Supabase).",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0"
   }

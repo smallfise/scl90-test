@@ -7,36 +7,43 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header class="hero">
+  <div class="container">
+    <header class="card intro" id="intro">
       <h1>SCL-90 症状自评量表</h1>
-      <p class="sub">请根据最近一周的真实感受作答（1=从无，2=很轻，3=中等，4=偏重，5=严重）。
-      本测评仅供自我了解，不等同临床诊断。</p>
-      <div id="gate" class="gate hidden"></div>
+      <p>本测评包含 90 个问题，请根据最近一周的真实体验作答。结果仅供参考，不代表临床诊断。</p>
+      <ul class="scale">
+        <li>1 = 从无</li>
+        <li>2 = 很轻</li>
+        <li>3 = 中等</li>
+        <li>4 = 偏重</li>
+        <li>5 = 严重</li>
+      </ul>
+      <div id="gate" class="alert hidden"></div>
       <button id="startBtn" class="btn primary">开始测试</button>
     </header>
 
-    <main id="main" class="hidden">
-      <form id="scl90-form">
-        <div id="questions"></div>
-        <div class="actions">
-          <button type="submit" class="btn primary">提交并查看结果</button>
-        </div>
-      </form>
-
-      <section id="result" class="result hidden">
-        <h2>测评结果</h2>
-        <div id="scoreSummary"></div>
-        <div id="factorScores"></div>
-        <div class="tips" id="advice"></div>
-      </section>
+    <main id="quiz" class="card hidden">
+      <div class="progress">
+        <div id="progress-bar" class="bar"></div>
+      </div>
+      <div id="questionBox"></div>
+      <div class="nav">
+        <button id="prevBtn" class="btn">上一题</button>
+        <button id="nextBtn" class="btn primary">下一题</button>
+      </div>
     </main>
 
-    <footer class="foot">
-      <small>© <span id="y"></span> 心理测评服务 · 结果仅供参考，必要时请寻求专业协助。</small>
+    <section id="result" class="card hidden">
+      <h2>测评结果</h2>
+      <div id="scoreSummary"></div>
+      <div id="factorScores"></div>
+      <div id="advice" class="tips"></div>
+    </section>
+
+    <footer class="footer">
+      <small>© <span id="y"></span> 心理测评服务 | 仅供参考</small>
     </footer>
   </div>
-
   <script src="/script.js"></script>
   <script>document.getElementById('y').textContent=new Date().getFullYear()</script>
 </body>
