@@ -84,6 +84,15 @@ h1 {
   color: #5bb85b;
 }
 
+.instruction ul {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.instruction li {
+  margin-bottom: 6px;
+}
+
 /* 测试页 */
 .question-container {
   text-align: center;
@@ -209,7 +218,7 @@ h1 {
   margin: 25px auto;
 }
 
-/* 结果页分数显示 */
+/* 结果页 */
 .big-score-box {
   text-align: center;
   margin: 20px 0;
@@ -221,7 +230,6 @@ h1 {
   margin: 10px 0;
 }
 
-/* 表格样式 */
 .result-table {
   width: 100%;
   border-collapse: collapse;
@@ -248,7 +256,6 @@ h1 {
 .badge-moderate { background: #ff9800; }
 .badge-severe { background: #f44336; }
 
-/* 因子解释 */
 #factor-explanations {
   margin-top: 25px;
 }
@@ -265,7 +272,6 @@ h1 {
   margin-right: 8px;
 }
 
-/* 结果解释 */
 .result-box {
   margin-top: 30px;
   padding: 20px;
@@ -288,7 +294,6 @@ h1 {
   font-size: 14px;
 }
 
-/* Token 校验提示 */
 .alert {
   padding: 12px 14px;
   margin: 12px 0;
@@ -297,24 +302,12 @@ h1 {
   color: #7a5d00;
   border: 1px solid #ffeeba;
 }
-
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* 移动端适配 */
 @media (max-width: 480px) {
-  h1 {
-    font-size: 20px;
-  }
-  .subtitle {
-    font-size: 14px;
-  }
-  .question {
-    font-size: 18px;
-  }
-  .btn {
-    font-size: 15px;
-    padding: 12px 20px;
-  }
+  h1 { font-size: 20px; }
+  .subtitle { font-size: 14px; }
+  .question { font-size: 18px; }
+  .btn { font-size: 15px; padding: 12px 20px; }
 }
