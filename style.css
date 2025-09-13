@@ -84,15 +84,6 @@ h1 {
   color: #5bb85b;
 }
 
-.instruction ul {
-  margin-left: 20px;
-  margin-top: 10px;
-}
-
-.instruction li {
-  margin-bottom: 6px;
-}
-
 /* 测试页 */
 .question-container {
   text-align: center;
@@ -218,99 +209,73 @@ h1 {
   margin: 25px auto;
 }
 
-/* 结果页 */
-.result-summary {
-  margin-bottom: 25px;
-  padding: 20px;
+/* 结果页分数显示 */
+.big-score-box {
+  text-align: center;
+  margin: 20px 0;
+}
+.big-score {
+  font-size: 48px;
+  font-weight: bold;
+  color: #5bb85b;
+  margin: 10px 0;
+}
+
+/* 表格样式 */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 15px;
+}
+.result-table th, .result-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+.result-table th {
   background: #f8f9fa;
-  border-radius: 12px;
 }
-
-.result-summary p {
-  margin: 12px 0;
-  display: flex;
-  justify-content: space-between;
-  font-size: 16px;
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
 }
+.badge-normal { background: #5bb85b; }
+.badge-mild { background: #8bc34a; }
+.badge-moderate { background: #ff9800; }
+.badge-severe { background: #f44336; }
 
-.result-summary .score {
-  font-weight: 600;
-  color: #5bb85b;
-}
-
-.result-container {
-  margin-bottom: 25px;
-}
-
-.factor-result {
-  margin-bottom: 18px;
-  padding: 18px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.03);
-}
-
-.factor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.factor-name {
-  font-weight: 600;
-  font-size: 17px;
-}
-
-.factor-score {
-  font-weight: 700;
-  color: #5bb85b;
-}
-
-.score-bar {
-  height: 20px;
-  background: #e9ecef;
-  border-radius: 10px;
-  margin: 12px 0;
-  overflow: hidden;
-}
-
-.score-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #a5d6a5, #5bb85b);
-  border-radius: 10px;
-  width: 0%;
-  transition: width 1s ease-in-out;
-}
-
-.interpretation {
+/* 因子解释 */
+#factor-explanations {
   margin-top: 25px;
-  padding: 20px;
+}
+.factor-explain {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
   background: #f8f9fa;
-  border-radius: 12px;
+}
+.factor-explain h4 {
+  margin-bottom: 8px;
+}
+.factor-explain .badge {
+  margin-right: 8px;
 }
 
-.interpretation h3 {
-  margin-bottom: 15px;
-  color: #5bb85b;
-}
-
-.interpretation ul {
-  padding-left: 20px;
-  margin: 15px 0;
-}
-
-.interpretation li {
-  margin-bottom: 10px;
-  line-height: 1.5;
-}
-
-.advice-section {
-  margin-top: 20px;
+/* 结果解释 */
+.result-box {
+  margin-top: 30px;
   padding: 20px;
   background: #eef9ee;
   border-radius: 12px;
-  border-left: 4px solid #5bb85b;
+  border: 1px solid #cde5cd;
+}
+.result-box h3 {
+  margin-bottom: 15px;
+  color: #5bb85b;
 }
 
 /* 页脚 */
@@ -342,15 +307,12 @@ h1 {
   h1 {
     font-size: 20px;
   }
-
   .subtitle {
     font-size: 14px;
   }
-
   .question {
     font-size: 18px;
   }
-
   .btn {
     font-size: 15px;
     padding: 12px 20px;
