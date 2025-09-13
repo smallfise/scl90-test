@@ -1,5 +1,4 @@
-// ====== 90题 ======
-const QUESTIONS = [
+const QUESTIONS=[
   "头痛","神经过敏表现","头晕或眼花","心悸或心跳过快","呼吸困难","手脚颤抖或发抖",
   "感到紧张或容易受惊","害怕空旷场所或街上独行","害怕上公共交通工具","害怕昏厥在公共场所",
   "失眠或难以入睡","作恶梦或梦境过多","容易醒来或睡眠浅","食欲不振","消化不良或胃不舒服",
@@ -20,47 +19,39 @@ const QUESTIONS = [
   "学习/工作效率明显下降","做事拖延严重","无法按时完成任务","做决定很痛苦","经常后悔自己的选择",
   "坐立不安","无法静坐或放松","紧张无法缓解","容易受惊吓","总觉得要出事"
 ];
-
-const FACTORS = {
-  "躯体化": [1,4,12,27,40,42,48,49,52,53,56,58,59],
-  "强迫症状": [3,9,10,28,38,45,46,51,55,65],
-  "人际敏感": [6,21,22,23,24,31,32,33,34],
-  "抑郁": [5,14,15,20,25,26,29,30,31,32,54,71,79],
-  "焦虑": [2,17,18,41,61,68,72,78,80,86],
-  "敌对": [11,63,67,74,81,82],
-  "恐怖焦虑": [13,35,36,37,62,84,85,87],
-  "偏执": [8,18,43,68,75,76],
-  "精神病性": [7,16,19,44,50,57,60,64,66,69,70,73,77,83,88,89,90]
+const FACTORS={
+  "躯体化":[1,4,12,27,40,42,48,49,52,53,56,58,59],
+  "强迫症状":[3,9,10,28,38,45,46,51,55,65],
+  "人际敏感":[6,21,22,23,24,31,32,33,34],
+  "抑郁":[5,14,15,20,25,26,29,30,31,32,54,71,79],
+  "焦虑":[2,17,18,41,61,68,72,78,80,86],
+  "敌对":[11,63,67,74,81,82],
+  "恐怖焦虑":[13,35,36,37,62,84,85,87],
+  "偏执":[8,18,43,68,75,76],
+  "精神病性":[7,16,19,44,50,57,60,64,66,69,70,73,77,83,88,89,90]
 };
-
-let cur = 0;
-const answers = new Array(QUESTIONS.length).fill(null);
-const total = QUESTIONS.length;
-
+let cur=0;const answers=new Array(QUESTIONS.length).fill(null);const total=QUESTIONS.length;
 function el(id){return document.getElementById(id);}
-
 function getTokenFromUrl(){const u=new URL(location.href);return u.searchParams.get('t')||'';}
 async function api(path,opts){const r=await fetch(path,opts);return r.json();}
-
 function renderQ(){
-  const q = QUESTIONS[cur];
-  const box = el('questionBox');
-  box.innerHTML = `<div class="q-title">第 ${cur+1} / ${total} 题：${q}</div>`;
-  const opts = document.createElement('div');
-  opts.className = 'options';
-  for(let v=1; v<=5; v++){
+  const q=QUESTIONS[cur];
+  el('question-number').textContent=`问题 ${cur+1}/${total}`;
+  const box=el('questionBox');
+  box.innerHTML=`<div class="question">${q}</div>`;
+  const opts=document.createElement('div');opts.className='options';
+  for(let v=1;v<=5;v++){
     const div=document.createElement('div');
-    div.className='option'+(answers[cur]===v?' selected':'');
-    div.textContent=v;
+    div.className='option'+(answers[cur]===v?' selected':'');div.textContent=`${v} 分`;
     div.onclick=()=>{answers[cur]=v;renderQ();};
     opts.appendChild(div);
   }
   box.appendChild(opts);
   el('progress-bar').style.width=((cur+1)/total*100)+'%';
+  el('progress-text').textContent=`已完成: ${Math.round((cur+1)/total*100)}%`;
   el('prevBtn').disabled=cur===0;
   el('nextBtn').textContent=cur===total-1?'提交':'下一题';
 }
-
 function compute(vals){
   function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
   const factors={};
@@ -71,22 +62,28 @@ function compute(vals){
   const totalMean=+(mean(vals)).toFixed(2);
   return {factors,total:totalMean};
 }
-
 function renderResult(r){
-  el('quiz').classList.add('hidden');
-  el('result').classList.remove('hidden');
+  el('quiz').classList.add('hidden');el('result').classList.remove('hidden');
   el('scoreSummary').innerHTML=`<p><strong>总均分：</strong>${r.total}</p>`;
-  el('factorScores').innerHTML=Object.entries(r.factors).map(([k,v])=>`<div class="factor"><strong>${k}：</strong>${v}</div>`).join('');
-  el('advice').textContent=r.total>=3?"建议：总均分偏高，心理困扰明显，应关注休息与专业支持。":"整体状态较平稳，请继续保持健康习惯。";
+  el('factorScores').innerHTML=Object.entries(r.factors).map(([k,v])=>`
+    <div class="factor">
+      <div class="factor-header">
+        <div class="factor-name">${k}</div>
+        <div class="factor-score">${v}</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:${(v/5*100).toFixed(0)}%"></div></div>
+    </div>`).join('');
+  el('advice').innerHTML=r.total>=3?
+    "<h3>建议</h3><p>总均分偏高，心理困扰明显，应关注休息与专业支持。</p>":
+    "<h3>建议</h3><p>整体状态较平稳，请继续保持健康习惯。</p>";
 }
-
 async function init(){
   const token=getTokenFromUrl();
   const gate=el('gate');const startBtn=el('startBtn');
   if(!token){gate.classList.remove('hidden');gate.textContent='缺少访问参数';startBtn.disabled=true;return;}
   const res=await api(`/api/token?token=${encodeURIComponent(token)}`);
   if(!res.ok){gate.classList.remove('hidden');gate.textContent=res.reason==='used'?'链接已被使用':'链接无效';startBtn.disabled=true;return;}
-  startBtn.onclick=()=>{el('intro').classList.add('hidden');el('quiz').classList.remove('hidden');renderQ();};
+  startBtn.onclick=()=>{el('intro').classList.remove('active');el('quiz').classList.remove('hidden');el('quiz').classList.add('active');renderQ();};
   el('prevBtn').onclick=()=>{if(cur>0){cur--;renderQ();}};
   el('nextBtn').onclick=async()=>{
     if(cur<total-1){cur++;renderQ();}else{
@@ -96,5 +93,4 @@ async function init(){
     }
   };
 }
-
 document.addEventListener('DOMContentLoaded',init);

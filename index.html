@@ -3,45 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SCL-90 症状自评量表</title>
+  <title>SCL-90 心理健康自评量表</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container">
-    <header class="card intro" id="intro">
-      <h1>SCL-90 症状自评量表</h1>
-      <p>本测评包含 90 个问题，请根据最近一周的真实体验作答。结果仅供参考，不代表临床诊断。</p>
-      <ul class="scale">
-        <li>1 = 从无</li>
-        <li>2 = 很轻</li>
-        <li>3 = 中等</li>
-        <li>4 = 偏重</li>
-        <li>5 = 严重</li>
-      </ul>
-      <div id="gate" class="alert hidden"></div>
-      <button id="startBtn" class="btn primary">开始测试</button>
+    <header>
+      <h1>SCL-90 心理健康自评量表</h1>
+      <p class="subtitle">请根据您最近一周的真实感受作答，本测试共 90 题。</p>
     </header>
 
-    <main id="quiz" class="card hidden">
-      <div class="progress">
-        <div id="progress-bar" class="bar"></div>
+    <section id="intro" class="section active">
+      <div class="intro">
+        <p>本量表包含 <strong>90 个问题</strong>，评分范围 1–5 分：</p>
+        <ul>
+          <li>1 = 从无</li>
+          <li>2 = 很轻</li>
+          <li>3 = 中等</li>
+          <li>4 = 偏重</li>
+          <li>5 = 严重</li>
+        </ul>
+        <p>请根据您最近一周的体验进行选择，测试结果仅供参考，不代表临床诊断。</p>
       </div>
-      <div id="questionBox"></div>
+      <div id="gate" class="alert hidden"></div>
+      <button id="startBtn" class="btn btn-center">开始测试</button>
+    </section>
+
+    <section id="quiz" class="section hidden">
+      <div class="progress-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <div class="progress-text" id="progress-text">已完成: 0%</div>
+      <div class="question-container">
+        <div class="question-number" id="question-number"></div>
+        <div class="question" id="questionBox"></div>
+      </div>
       <div class="nav">
         <button id="prevBtn" class="btn">上一题</button>
         <button id="nextBtn" class="btn primary">下一题</button>
       </div>
-    </main>
+    </section>
 
-    <section id="result" class="card hidden">
-      <h2>测评结果</h2>
-      <div id="scoreSummary"></div>
-      <div id="factorScores"></div>
-      <div id="advice" class="tips"></div>
+    <section id="result" class="section hidden">
+      <h2 style="text-align:center; margin-bottom:20px;">测评结果</h2>
+      <div class="result-summary" id="scoreSummary"></div>
+      <div id="factorScores" class="result-container"></div>
+      <div id="advice" class="advice-section"></div>
     </section>
 
     <footer class="footer">
-      <small>© <span id="y"></span> 心理测评服务 | 仅供参考</small>
+      <p>© <span id="y"></span> 心理测评服务 | 结果仅供参考</p>
     </footer>
   </div>
   <script src="/script.js"></script>
