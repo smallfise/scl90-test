@@ -10,41 +10,28 @@
   <div class="container">
     <header>
       <h1>SCL-90心理健康自评量表</h1>
-      <p class="subtitle">
-        症状自评量表SCL-90是进行心理健康状况鉴别及团体心理卫生普查的实用量表
-      </p>
+      <p class="subtitle">症状自评量表SCL-90是进行心理健康状况鉴别及团体心理卫生普查的实用量表</p>
     </header>
 
     <!-- 欢迎页 -->
     <div id="welcome-section" class="section active">
       <div class="intro">
-        <p>
-          本量表共包含90个项目，涉及广泛的精神病症状学内容，采用10个因子分别反映10个方面的心理症状情况。
-        </p>
-        <p>
-          请根据您<strong>最近一周</strong>的实际感觉，选择最符合的选项。测试大约需要15-20分钟。
-        </p>
+        <p>本量表共包含90个项目，涉及广泛的精神病症状学内容，采用10个因子分别反映10个方面的心理症状情况。</p>
+        <p>请根据您<strong>最近一周</strong>的实际感觉，选择最符合的选项。测试大约需要15-20分钟。</p>
       </div>
 
       <div class="instruction">
         <h3>测试说明</h3>
-        <p>
-          SCL-90量表包含90题，从感觉、情感、思维、意识、行为直至生活习惯、人际关系、饮食睡眠等方面评估您的心理健康状况。
-        </p>
-        <p>评分采用5级制：</p>
         <ul>
-          <li>1分：从无 - 自觉并无该项症状</li>
-          <li>2分：轻度 - 自觉有该项症状，但发生得并不频繁、不严重</li>
-          <li>3分：中度 - 自觉有该项症状，其严重程度为轻到中度</li>
-          <li>4分：偏重 - 自觉常有该项症状，其程度为中到严重</li>
-          <li>5分：严重 - 自觉该项症状的频度和强度都十分严重</li>
+          <li>1分：从无</li>
+          <li>2分：轻度</li>
+          <li>3分：中度</li>
+          <li>4分：偏重</li>
+          <li>5分：严重</li>
         </ul>
-        <p>所有数据仅保存在您的浏览器中，不会上传到任何服务器。</p>
       </div>
 
-      <!-- token 校验提示 -->
       <div id="gate" class="alert hidden"></div>
-
       <button id="start-test" class="btn btn-center" disabled>开始测试</button>
     </div>
 
@@ -65,39 +52,41 @@
 
     <!-- 结果页 -->
     <div id="result-section" class="section">
-      <h2 style="text-align: center; margin-bottom: 20px;">测试结果</h2>
+      <h2 style="text-align:center; margin-bottom:20px;">测试结果</h2>
 
-      <div class="result-summary">
-        <h3>总体情况</h3>
-        <p>总分：<span class="score" id="total-score"></span></p>
-        <p>总症状指数：<span class="score" id="symptom-index"></span></p>
-        <p>阳性项目数：<span class="score" id="positive-items"></span></p>
-        <p>阴性项目数：<span class="score" id="negative-items"></span></p>
-        <p>阳性症状均分：<span class="score" id="positive-average"></span></p>
+      <!-- 总分 -->
+      <div class="big-score-box">
+        <p>您的SCL-90总分</p>
+        <div class="big-score" id="total-score">0</div>
+        <p>单项平均分：<span id="symptom-index">0</span></p>
       </div>
 
-      <div class="result-container" id="factor-results"></div>
+      <!-- 因子分表格 -->
+      <h3>各因子得分及测试情况</h3>
+      <table class="result-table" id="factor-table">
+        <thead>
+          <tr>
+            <th>因子名称</th><th>总分</th><th>平均分</th><th>测试情况</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-      <div class="interpretation">
-        <h3>结果解释</h3>
-        <div id="result-interpretation"></div>
-      </div>
+      <!-- 因子解释 -->
+      <div id="factor-explanations"></div>
 
-      <div class="advice-section" id="advice-section"></div>
+      <!-- 结果解释 -->
+      <div class="result-box" id="result-interpretation"></div>
 
-      <div style="text-align: center; margin-top: 25px;">
-        <button id="save-result" class="btn save-btn">保存结果</button>
+      <div style="text-align:center; margin-top:25px;">
         <button id="restart-test" class="btn">重新测试</button>
       </div>
     </div>
 
-    <!-- 页脚 -->
     <div class="footer">
       <p>本测试结果仅供参考，不能作为临床诊断的依据</p>
-      <p>如有严重心理困扰，请咨询专业心理医生</p>
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
