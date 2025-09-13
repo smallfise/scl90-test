@@ -20,25 +20,23 @@ const questions = [
   "感到要很快把事情做完","感到自己的身体有严重问题","从未感到和其他人很亲近","感到自己有罪","感到自己的脑子有毛病"
 ];
 
-// ====================== 因子分类 ======================
+// ====================== 因子定义 ======================
 const factors = {
-  "躯体化": { indices: [0,3,11,26,39,46,50,56,68,76], explanation: "反映主观的身体不适感，包括头痛、背痛、胸痛、胃口不好、心跳加快等" },
-  "强迫症状": { indices: [1,2,8,27,36,44,53,62,65,74], explanation: "反映无法摆脱的无意义思想、冲动或行为，如反复检查、洗手、计数等" },
-  "人际关系敏感": { indices: [5,20,33,35,37,41,60,64,69,78], explanation: "反映人际交往中的不自在和自卑感" },
-  "抑郁": { indices: [4,13,14,28,29,30,38,52,63,71,79,85,88], explanation: "反映兴趣减退、悲观、无助、自责等抑郁症状" },
-  "焦虑": { indices: [10,22,31,34,42,55,67,73,80,86], explanation: "反映紧张、坐立不安、容易受惊吓、无法放松等症状" },
-  "敌对": { indices: [6,21,23,40,58,70,81,84,89], explanation: "反映敌对情绪和行为，如争论、发火、摔东西" },
-  "恐怖": { indices: [12,24,45,47,49,59,61,72,77,82], explanation: "反映恐惧体验，如害怕外出、乘车、人群、空旷场所" },
-  "偏执": { indices: [7,16,17,32,43,51,57,66,75,83], explanation: "反映偏执性思维，如被监视、受骗、不信任别人等" },
-  "精神病性": { indices: [9,18,25,44,48,54,62,73,79,87], explanation: "反映幻听、思维异常、怪异行为等精神病性症状" },
-  "其他（睡眠/饮食等）": { indices: [19,25,39,48,55,60,64,71,79], explanation: "反映睡眠及饮食问题，如失眠、多梦、食欲不振、饮食过量" }
+  "躯体化": { indices: [0,3,11,26,39,46,50,56,68,76], explanation: "主要反映身体化反应症状，如头痛、胸痛、肌肉酸痛等。" },
+  "强迫症状": { indices: [1,2,8,27,36,44,53,62,65,74], explanation: "反映强迫性思维和行为，如反复思考、检查或洗手。" },
+  "人际关系敏感": { indices: [5,20,33,35,37,41,60,64,69,78], explanation: "反映人际关系中的不自在和自卑感。" },
+  "抑郁": { indices: [4,13,14,28,29,30,38,52,63,71,79,85,88], explanation: "反映抑郁心境、兴趣减退、自责、无望等。" },
+  "焦虑": { indices: [10,22,31,34,42,55,67,73,80,86], explanation: "反映焦虑紧张、不安、心慌等症状。" },
+  "敌对": { indices: [6,21,23,40,58,70,81,84,89], explanation: "反映敌意、易怒、攻击性。" },
+  "恐怖": { indices: [12,24,45,47,49,59,61,72,77,82], explanation: "反映对特定场景或人群的恐惧体验。" },
+  "偏执": { indices: [7,16,17,32,43,51,57,66,75,83], explanation: "反映猜疑、多疑、被害感等偏执症状。" },
+  "精神病性": { indices: [9,18,25,44,48,54,62,73,79,87], explanation: "反映幻听、思维紊乱等精神病性症状。" },
+  "其他（睡眠/饮食等）": { indices: [19,25,39,48,55,60,64,71,79], explanation: "反映睡眠障碍、饮食异常等情况。" }
 };
 
 // ====================== 状态 ======================
 let currentQuestion = 0;
 let answers = new Array(90).fill(0);
-let factorScores = {};
-let startTime = null;
 
 // ====================== DOM ======================
 const welcomeSection = document.getElementById('welcome-section');
@@ -49,216 +47,93 @@ const questionNumber = document.getElementById('question-number');
 const optionsContainer = document.getElementById('options');
 const progressBar = document.getElementById('test-progress');
 const progressText = document.getElementById('progress-text');
-const timerElement = document.getElementById('timer');
-const factorResults = document.getElementById('factor-results');
+const factorTableBody = document.querySelector('#factor-table tbody');
+const factorExplanations = document.getElementById('factor-explanations');
 const resultInterpretation = document.getElementById('result-interpretation');
-const adviceSection = document.getElementById('advice-section');
 const startBtn = document.getElementById('start-test');
 const gate = document.getElementById('gate');
 
-// ====================== 一次性链接校验 ======================
-function getTokenFromUrl(){
-  try { return new URL(location.href).searchParams.get('t') || ''; }
-  catch(e){ return ''; }
-}
-async function api(path,opts){
-  try { const r = await fetch(path,opts); return await r.json(); }
-  catch(e){ return {ok:false,reason:'server_error'}; }
-}
-async function initGate(){
-  const token = getTokenFromUrl();
-  if(!token){
-    gate.classList.remove('hidden');
-    gate.textContent = '缺少访问参数';
-    startBtn.disabled = true;
-    return;
-  }
-  const res = await api(`/api/token?token=${encodeURIComponent(token)}`);
-  if(!res.ok){
-    gate.classList.remove('hidden');
-    gate.textContent = res.reason==='used'?'链接已被使用':'链接无效';
-    startBtn.disabled = true;
-    return;
-  }
-  startBtn.disabled = false;
-}
-
-// ====================== 初始化 ======================
+// ====================== 启动 ======================
 document.addEventListener('DOMContentLoaded', () => {
-  initGate();
+  startBtn.disabled = false;
   startBtn.addEventListener('click', startTest);
-  document.getElementById('save-result').addEventListener('click', saveResult);
   document.getElementById('restart-test').addEventListener('click', restartTest);
 });
 
-// ====================== 开始测试 ======================
-function startTest() {
-  startTime = new Date();
+// ====================== 测试逻辑 ======================
+function startTest(){
   welcomeSection.classList.remove('active');
   testSection.classList.add('active');
   showQuestion(0);
-  updateTimer();
 }
 
-// ====================== 显示题目 ======================
 function showQuestion(index){
-  currentQuestion = index;
-  questionNumber.textContent = `问题 ${index+1}/90`;
-  questionElement.textContent = questions[index];
+  currentQuestion=index;
+  questionNumber.textContent=`问题 ${index+1}/90`;
+  questionElement.textContent=questions[index];
+  const progress=((index+1)/90)*100;
+  progressBar.style.width=`${progress}%`;
+  progressText.textContent=`已完成: ${Math.round(progress)}%`;
 
-  const progress = ((index+1)/90)*100;
-  progressBar.style.width = `${progress}%`;
-  progressText.textContent = `已完成: ${Math.round(progress)}%`;
-
-  updateTimer();
-
-  optionsContainer.innerHTML = '';
-  const optionValues = [
-    {value:1,text:"从无"},{value:2,text:"轻度"},
-    {value:3,text:"中度"},{value:4,text:"偏重"},{value:5,text:"严重"}
-  ];
-
-  optionValues.forEach(option=>{
-    const label = document.createElement('label');
-    label.className = 'option-label';
-    if(answers[index]===option.value) label.classList.add('selected');
-    label.innerHTML = `
-      <div class="option-value">${option.value}分</div>
-      <div class="option-text">${option.text}</div>
-    `;
+  optionsContainer.innerHTML='';
+  [1,2,3,4,5].forEach(v=>{
+    const label=document.createElement('label');
+    label.className='option-label';
+    if(answers[index]===v) label.classList.add('selected');
+    label.innerHTML=`<div class="option-value">${v}分</div><div class="option-text">${['从无','轻度','中度','偏重','严重'][v-1]}</div>`;
     label.addEventListener('click',()=>{
       document.querySelectorAll('.option-label').forEach(el=>el.classList.remove('selected'));
       label.classList.add('selected');
-      answers[index]=option.value;
-      setTimeout(()=>{
-        if(index<89){ showQuestion(index+1); }
-        else{ showResults(); }
-      },400);
+      answers[index]=v;
+      setTimeout(()=>{ index<89?showQuestion(index+1):showResults(); },300);
     });
     optionsContainer.appendChild(label);
   });
 }
 
-// ====================== 计时器 ======================
-function updateTimer(){
-  if(!startTime) return;
-  const elapsed = (new Date()-startTime)/1000/60;
-  const remaining = Math.max(5,Math.round(20-elapsed));
-  timerElement.textContent = `预计剩余时间: ${remaining}分钟`;
-}
+function showResults(){
+  testSection.classList.remove('active');
+  resultSection.classList.add('active');
 
-// ====================== 计算结果 ======================
-function calculateResults(){
-  let totalScore=0, positiveItems=0;
-  answers.forEach(a=>{
-    totalScore+=a;
-    if(a>1) positiveItems++;
-  });
-  const negativeItems = 90-positiveItems;
-  const positiveAverage = positiveItems>0?(totalScore-negativeItems)/positiveItems:0;
-  const symptomIndex = totalScore/90;
+  const totalScore=answers.reduce((a,b)=>a+b,0);
+  const symptomIndex=(totalScore/90).toFixed(2);
+  document.getElementById('total-score').textContent=totalScore;
+  document.getElementById('symptom-index').textContent=symptomIndex;
 
-  document.getElementById('total-score').textContent = totalScore;
-  document.getElementById('symptom-index').textContent = symptomIndex.toFixed(2);
-  document.getElementById('positive-items').textContent = positiveItems;
-  document.getElementById('negative-items').textContent = negativeItems;
-  document.getElementById('positive-average').textContent = positiveAverage.toFixed(2);
-
-  factorScores={};
+  factorTableBody.innerHTML='';
+  factorExplanations.innerHTML='';
   for(const factor in factors){
     const idxs=factors[factor].indices;
     let sum=0; idxs.forEach(i=>sum+=answers[i]);
-    factorScores[factor]={average:(sum/idxs.length).toFixed(2),total:sum};
-  }
-}
-
-// ====================== 展示结果 ======================
-function displayResults(){
-  factorResults.innerHTML='<h3>各因子分</h3>';
-  for(const factor in factorScores){
-    const score=parseFloat(factorScores[factor].average);
-    const total=factorScores[factor].total;
-    let level='';
-    if(score<1.5) level='正常';
-    else if(score<2.5) level='轻度';
-    else if(score<3.5) level='中度';
-    else level='重度';
-
-    const percentage=Math.min(score/5*100,100);
-
-    factorResults.innerHTML+=`
-      <div class="factor-result">
-        <div class="factor-header">
-          <div class="factor-name">${factor}</div>
-          <div class="factor-score">${score} (总分:${total}) <span>${level}</span></div>
-        </div>
-        <div class="score-bar"><div class="score-fill" style="width:${percentage}%"></div></div>
-        <div class="factor-explanation">${factors[factor].explanation}</div>
-      </div>
-    `;
+    const avg=(sum/idxs.length).toFixed(2);
+    let badgeClass='badge-normal', level='正常';
+    if(avg<1.5){ badgeClass='badge-normal'; level='正常'; }
+    else if(avg<2.5){ badgeClass='badge-mild'; level='轻度'; }
+    else if(avg<3.5){ badgeClass='badge-moderate'; level='中度'; }
+    else { badgeClass='badge-severe'; level='重度'; }
+    factorTableBody.innerHTML+=`
+      <tr>
+        <td>${factor}</td><td>${sum}</td><td>${avg}</td>
+        <td><span class="badge ${badgeClass}">${level}</span></td>
+      </tr>`;
+    factorExplanations.innerHTML+=`
+      <div class="factor-explain">
+        <h4><span class="badge ${badgeClass}">${level}</span> ${factor}</h4>
+        <p>${factors[factor].explanation}</p>
+      </div>`;
   }
 
-  let interpretation='';
-  const totalScore=parseFloat(document.getElementById('total-score').textContent);
-  if(totalScore<160){
-    interpretation='<p>您的总体心理健康状况良好，无明显心理症状。</p>';
-    adviceSection.innerHTML='<h3>建议</h3><p>继续保持健康的生活方式，适度锻炼，规律作息。</p>';
-  }else if(totalScore<200){
-    interpretation='<p>您可能存在轻度的心理困扰。</p>';
-    adviceSection.innerHTML='<h3>建议</h3><p>学习压力管理技巧，保持良好社交，适当放松。</p>';
-  }else if(totalScore<250){
-    interpretation='<p>您有明显的心理症状，建议寻求专业心理咨询。</p>';
-    adviceSection.innerHTML='<h3>建议</h3><p>建议咨询心理医生，调整生活方式，建立支持系统。</p>';
-  }else{
-    interpretation='<p>您的心理症状较为严重，强烈建议尽快就医。</p>';
-    adviceSection.innerHTML='<h3>建议</h3><p>请及时联系专业心理医生进行评估与治疗。</p>';
-  }
-
-  interpretation+='<h4>分级标准：</h4><ul><li>1.0-1.5分: 正常范围</li><li>1.5-2.5分: 轻度症状</li><li>2.5-3.5分: 中度症状</li><li>3.5-5.0分: 重度症状</li></ul>';
-  interpretation+='<p>请注意：本测试结果仅供参考，不能作为临床诊断依据。</p>';
-  resultInterpretation.innerHTML=interpretation;
-
-  setTimeout(()=>{
-    document.querySelectorAll('.score-fill').forEach(fill=>{
-      const w=fill.style.width;
-      fill.style.width='0';
-      setTimeout(()=>{fill.style.width=w;},100);
-    });
-  },200);
+  resultInterpretation.innerHTML=`
+    <h3>结果解释</h3>
+    <p>请用从容的心态来看待本次测试。无论分数如何。请一定记得,我们始终都在你身边。</p>
+    <p>SCL-90心理健康自评量表通盖了情绪状态、思维模式、人际关系、生活习惯等多个维度。它就像一面温柔的镜子,能帮你更清晰地看见自己当下的心理状态。需要知道的是,量表得分仅仅是近期心理感受的投射。若某些因子得分较高,或许只是说明你最近在这些方面暂时感受到了压力或困扰。但这绝不等于你存在严重的问题。很多时候,短期的心理波动本就是生活的常态--可能是学习的节奏，工作的挑战或是人际交往中的小插曲带来的暂时影响。</p>
+    <p>如果你发现自己在多个维度上长期感到不适。不妨多给自己一些关注:试着调整自己的作息规律,找到适合自己的放松方式,或是和信任的人好好倾诉聊。倘若情绪已经悄悄影响到了日常生活,且靠自己难以调节,也请不要犹豫。及时寻求专业的心理咨询或帮助,这并不是软弱，而是对自己的负责。要知道心理健康和身体健康同样重要。而你,本就值得被好好关心与坚定支持。</p>
+  `;
 }
 
-// ====================== 完成测试 ======================
-async function showResults(){
-  testSection.classList.remove('active');
-  resultSection.classList.add('active');
-  calculateResults();
-  displayResults();
-  const token=getTokenFromUrl();
-  if(token){ await api(`/api/token?token=${encodeURIComponent(token)}`,{method:'POST'}); }
-}
-
-// ====================== 保存结果 ======================
-function saveResult(){
-  const result={
-    date:new Date().toLocaleString(),
-    answers,totalScore:document.getElementById('total-score').textContent,
-    symptomIndex:document.getElementById('symptom-index').textContent,
-    positiveItems:document.getElementById('positive-items').textContent,
-    negativeItems:document.getElementById('negative-items').textContent,
-    positiveAverage:document.getElementById('positive-average').textContent,
-    factorScores
-  };
-  const saved=JSON.parse(localStorage.getItem('scl90Results')||'[]');
-  saved.push(result);
-  localStorage.setItem('scl90Results',JSON.stringify(saved));
-  alert('结果已保存！');
-}
-
-// ====================== 重新测试 ======================
 function restartTest(){
   currentQuestion=0;
   answers=new Array(90).fill(0);
   resultSection.classList.remove('active');
   welcomeSection.classList.add('active');
-  initGate();
 }
