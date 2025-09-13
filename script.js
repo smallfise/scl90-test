@@ -20,23 +20,24 @@ const questions = [
   "感到要很快把事情做完","感到自己的身体有严重问题","从未感到和其他人很亲近","感到自己有罪","感到自己的脑子有毛病"
 ];
 
-// ====================== 因子定义 ======================
+// ====================== 因子分类 ======================
 const factors = {
-  "躯体化": { indices: [0,3,11,26,39,46,50,56,68,76], explanation: "主要反映身体化反应症状，如头痛、胸痛、肌肉酸痛等。" },
-  "强迫症状": { indices: [1,2,8,27,36,44,53,62,65,74], explanation: "反映强迫性思维和行为，如反复思考、检查或洗手。" },
-  "人际关系敏感": { indices: [5,20,33,35,37,41,60,64,69,78], explanation: "反映人际关系中的不自在和自卑感。" },
-  "抑郁": { indices: [4,13,14,28,29,30,38,52,63,71,79,85,88], explanation: "反映抑郁心境、兴趣减退、自责、无望等。" },
-  "焦虑": { indices: [10,22,31,34,42,55,67,73,80,86], explanation: "反映焦虑紧张、不安、心慌等症状。" },
-  "敌对": { indices: [6,21,23,40,58,70,81,84,89], explanation: "反映敌意、易怒、攻击性。" },
-  "恐怖": { indices: [12,24,45,47,49,59,61,72,77,82], explanation: "反映对特定场景或人群的恐惧体验。" },
-  "偏执": { indices: [7,16,17,32,43,51,57,66,75,83], explanation: "反映猜疑、多疑、被害感等偏执症状。" },
-  "精神病性": { indices: [9,18,25,44,48,54,62,73,79,87], explanation: "反映幻听、思维紊乱等精神病性症状。" },
-  "其他（睡眠/饮食等）": { indices: [19,25,39,48,55,60,64,71,79], explanation: "反映睡眠障碍、饮食异常等情况。" }
+  "躯体化": { indices: [0,3,11,26,39,46,50,56,68,76], explanation: "主要反映身体化不适症状，如头痛、胸痛、胃肠道不适等。" },
+  "强迫症状": { indices: [1,2,8,27,36,44,53,62,65,74], explanation: "反映强迫观念和行为，如反复检查、无法控制的想法等。" },
+  "人际关系敏感": { indices: [5,20,33,35,37,41,60,64,69,78], explanation: "反映在与他人交往时的不适感和自卑感。" },
+  "抑郁": { indices: [4,13,14,28,29,30,38,52,63,71,79,85,88], explanation: "反映兴趣减退、情绪低落、自责和悲观等症状。" },
+  "焦虑": { indices: [10,22,31,34,42,55,67,73,80,86], explanation: "反映紧张、坐立不安、担忧和恐惧等症状。" },
+  "敌对": { indices: [6,21,23,40,58,70,81,84,89], explanation: "反映敌对情绪和行为，如争论、发火、摔东西等。" },
+  "恐怖": { indices: [12,24,45,47,49,59,61,72,77,82], explanation: "反映特定恐惧，如对空旷场所、人群、乘车等的恐惧。" },
+  "偏执": { indices: [7,16,17,32,43,51,57,66,75,83], explanation: "反映偏执观念，如怀疑、被害感、不信任他人等。" },
+  "精神病性": { indices: [9,18,25,44,48,54,62,73,79,87], explanation: "反映精神病性症状，如幻听、思维异常、孤僻等。" },
+  "其他（睡眠/饮食等）": { indices: [19,25,39,48,55,60,64,71,79], explanation: "反映睡眠及饮食相关问题，如失眠、多梦、食欲不振等。" }
 };
 
 // ====================== 状态 ======================
 let currentQuestion = 0;
 let answers = new Array(90).fill(0);
+let startTime = null;
 
 // ====================== DOM ======================
 const welcomeSection = document.getElementById('welcome-section');
@@ -47,93 +48,174 @@ const questionNumber = document.getElementById('question-number');
 const optionsContainer = document.getElementById('options');
 const progressBar = document.getElementById('test-progress');
 const progressText = document.getElementById('progress-text');
-const factorTableBody = document.querySelector('#factor-table tbody');
-const factorExplanations = document.getElementById('factor-explanations');
-const resultInterpretation = document.getElementById('result-interpretation');
+const timerElement = document.getElementById('timer');
 const startBtn = document.getElementById('start-test');
 const gate = document.getElementById('gate');
 
-// ====================== 启动 ======================
-document.addEventListener('DOMContentLoaded', () => {
+// ====================== 一次性链接校验 ======================
+function getTokenFromUrl(){
+  try { return new URL(location.href).searchParams.get('t') || ''; }
+  catch(e){ return ''; }
+}
+async function api(path,opts){
+  try { const r = await fetch(path,opts); return await r.json(); }
+  catch(e){ return {ok:false,reason:'server_error'}; }
+}
+async function initGate(){
+  const token = getTokenFromUrl();
+  if(!token){
+    gate.classList.remove('hidden');
+    gate.textContent = '缺少访问参数';
+    startBtn.disabled = true;
+    return;
+  }
+  const res = await api(`/api/token?token=${encodeURIComponent(token)}`);
+  if(!res.ok){
+    gate.classList.remove('hidden');
+    gate.textContent = res.reason==='used'?'链接已被使用':'链接无效';
+    startBtn.disabled = true;
+    return;
+  }
   startBtn.disabled = false;
+}
+
+// ====================== 初始化 ======================
+document.addEventListener('DOMContentLoaded', () => {
+  initGate();
   startBtn.addEventListener('click', startTest);
   document.getElementById('restart-test').addEventListener('click', restartTest);
 });
 
-// ====================== 测试逻辑 ======================
-function startTest(){
+// ====================== 开始测试 ======================
+function startTest() {
+  startTime = new Date();
   welcomeSection.classList.remove('active');
   testSection.classList.add('active');
   showQuestion(0);
+  updateTimer();
 }
 
+// ====================== 显示题目 ======================
 function showQuestion(index){
-  currentQuestion=index;
-  questionNumber.textContent=`问题 ${index+1}/90`;
-  questionElement.textContent=questions[index];
-  const progress=((index+1)/90)*100;
-  progressBar.style.width=`${progress}%`;
-  progressText.textContent=`已完成: ${Math.round(progress)}%`;
+  currentQuestion = index;
+  questionNumber.textContent = `问题 ${index+1}/90`;
+  questionElement.textContent = questions[index];
 
-  optionsContainer.innerHTML='';
-  [1,2,3,4,5].forEach(v=>{
-    const label=document.createElement('label');
-    label.className='option-label';
-    if(answers[index]===v) label.classList.add('selected');
-    label.innerHTML=`<div class="option-value">${v}分</div><div class="option-text">${['从无','轻度','中度','偏重','严重'][v-1]}</div>`;
+  const progress = ((index+1)/90)*100;
+  progressBar.style.width = `${progress}%`;
+  progressText.textContent = `已完成: ${Math.round(progress)}%`;
+
+  updateTimer();
+
+  optionsContainer.innerHTML = '';
+  const optionValues = [
+    {value:1,text:"从无"},{value:2,text:"轻度"},
+    {value:3,text:"中度"},{value:4,text:"偏重"},{value:5,text:"严重"}
+  ];
+
+  optionValues.forEach(option=>{
+    const label = document.createElement('label');
+    label.className = 'option-label';
+    if(answers[index]===option.value) label.classList.add('selected');
+    label.innerHTML = `
+      <div class="option-value">${option.value}分</div>
+      <div class="option-text">${option.text}</div>
+    `;
     label.addEventListener('click',()=>{
       document.querySelectorAll('.option-label').forEach(el=>el.classList.remove('selected'));
       label.classList.add('selected');
-      answers[index]=v;
-      setTimeout(()=>{ index<89?showQuestion(index+1):showResults(); },300);
+      answers[index]=option.value;
+      setTimeout(()=>{
+        if(index<89){ showQuestion(index+1); }
+        else{ showResults(); }
+      },400);
     });
     optionsContainer.appendChild(label);
   });
 }
 
+// ====================== 计时器 ======================
+function updateTimer(){
+  if(!startTime) return;
+  const elapsed = (new Date()-startTime)/1000/60;
+  const remaining = Math.max(5,Math.round(20-elapsed));
+  timerElement.textContent = `预计剩余时间: ${remaining}分钟`;
+}
+
+// ====================== 结果展示 ======================
 function showResults(){
   testSection.classList.remove('active');
   resultSection.classList.add('active');
 
-  const totalScore=answers.reduce((a,b)=>a+b,0);
-  const symptomIndex=(totalScore/90).toFixed(2);
-  document.getElementById('total-score').textContent=totalScore;
-  document.getElementById('symptom-index').textContent=symptomIndex;
+  // 总分 & 均分
+  const totalScore = answers.reduce((a,b)=>a+b,0);
+  const symptomIndex = (totalScore/90).toFixed(2);
+  document.getElementById('total-score').textContent = totalScore;
+  document.getElementById('symptom-index').textContent = symptomIndex;
 
-  factorTableBody.innerHTML='';
-  factorExplanations.innerHTML='';
+  // 因子表格 & 解释
+  const tbody = document.querySelector('#factor-table tbody');
+  tbody.innerHTML = '';
+  const factorExplanations = document.getElementById('factor-explanations');
+  factorExplanations.innerHTML = '';
+
   for(const factor in factors){
     const idxs=factors[factor].indices;
     let sum=0; idxs.forEach(i=>sum+=answers[i]);
-    const avg=(sum/idxs.length).toFixed(2);
+    const avg = (sum/idxs.length).toFixed(2);
+
     let badgeClass='badge-normal', level='正常';
     if(avg<1.5){ badgeClass='badge-normal'; level='正常'; }
     else if(avg<2.5){ badgeClass='badge-mild'; level='轻度'; }
     else if(avg<3.5){ badgeClass='badge-moderate'; level='中度'; }
     else { badgeClass='badge-severe'; level='重度'; }
-    factorTableBody.innerHTML+=`
+
+    tbody.innerHTML += `
       <tr>
-        <td>${factor}</td><td>${sum}</td><td>${avg}</td>
+        <td>${factor}</td>
+        <td>${sum}</td>
+        <td>${avg}</td>
         <td><span class="badge ${badgeClass}">${level}</span></td>
-      </tr>`;
-    factorExplanations.innerHTML+=`
+      </tr>
+    `;
+
+    factorExplanations.innerHTML += `
       <div class="factor-explain">
         <h4><span class="badge ${badgeClass}">${level}</span> ${factor}</h4>
         <p>${factors[factor].explanation}</p>
-      </div>`;
+      </div>
+    `;
   }
 
-  resultInterpretation.innerHTML=`
+  // 结果解释
+  const resultInterpretation = document.getElementById('result-interpretation');
+  resultInterpretation.innerHTML = `
     <h3>结果解释</h3>
-    <p>请用从容的心态来看待本次测试。无论分数如何。请一定记得,我们始终都在你身边。</p>
-    <p>SCL-90心理健康自评量表通盖了情绪状态、思维模式、人际关系、生活习惯等多个维度。它就像一面温柔的镜子,能帮你更清晰地看见自己当下的心理状态。需要知道的是,量表得分仅仅是近期心理感受的投射。若某些因子得分较高,或许只是说明你最近在这些方面暂时感受到了压力或困扰。但这绝不等于你存在严重的问题。很多时候,短期的心理波动本就是生活的常态--可能是学习的节奏，工作的挑战或是人际交往中的小插曲带来的暂时影响。</p>
+    <p>请用从容的心态来看待本次测试。无论分数如何。请一定记得,我们始终都在你身边。
+SCL-90心理健康自评量表通盖了情绪状态、思维模式、人际关系、生活习惯等多个维度。它就像一面温柔的镜子,能帮你更清晰地看见自己当下的心理状态。需要知道的是,量表得分仅仅是近期心理感受的投射。若某些因子得分较高,或许只是说明你最近在这些方面智时感受到了压力或困扰。但这绝不等于你存在严重的问题。很多时候。短期的心理波动本就是生活的常态--可能是学习的节奏，工作的挑战或是人际交往中的小插曲带来的暂时影响。</p>
     <p>如果你发现自己在多个维度上长期感到不适。不妨多给自己一些关注:试着调整自己的作息规律,找到适合自己的放松方式,或是和信任的人好好倾诉聊。倘若情绪已经悄悄影响到了日常生活,且靠自己难以调节,也请不要犹豫。及时寻求专业的心理咨询或帮助,这并不是软弱，而是对自己的负责。要知道心理健康和身体健康同样重要。而你,本就值得被好好关心与坚定支持。</p>
+    <p>一般认为：<br>
+      - 总分≥160分，提示心理健康可能存在问题；<br>
+      - 任一因子均分≥2分，提示该因子相关症状存在；<br>
+      - 阳性项目数≥43，提示心理健康可能存在问题。</p>
+    <p>量表的临界值参考：<br>
+      <span class="badge badge-normal">正常</span> 平均分1.0-2.0：正常或轻微症状<br>
+      <span class="badge badge-mild">轻度</span> 平均分2.1-3.0：轻度心理症状<br>
+      <span class="badge badge-moderate">中度</span> 平均分3.1-4.0：中度心理症状<br>
+      <span class="badge badge-severe">重度</span> 平均分4.1-5.0：重度心理症状</p>
+    <p>说明：本测试仅供参考，不能替代临床诊断。如症状明显影响到学习、工作和生活，请尽早寻求专业医生帮助。</p>
   `;
+
+  // token 核销
+  const token=getTokenFromUrl();
+  if(token){ api(`/api/token?token=${encodeURIComponent(token)}`,{method:'POST'}); }
 }
 
+// ====================== 重新测试 ======================
 function restartTest(){
   currentQuestion=0;
   answers=new Array(90).fill(0);
   resultSection.classList.remove('active');
   welcomeSection.classList.add('active');
+  initGate();
 }
